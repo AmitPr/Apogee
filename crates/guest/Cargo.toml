@@ -1,0 +1,13 @@
+[package]
+name = "guest"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = [ "cdylib" ]
+
+[dependencies]
+sdk = { path = "../sdk" }
+
+#[package.metadata.wit-component]
+#command = "wit-component ../target/wasm32-unknown-unknown/release/guest.wasm -o ../wasm/guest_component.wasm"
