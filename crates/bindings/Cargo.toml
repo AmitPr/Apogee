@@ -7,4 +7,4 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.66"
-wit-bindgen-guest-rust = {git = "https://github.com/AmitPr/wit-bindgen"}
+wit-bindgen-guest-rust = { workspace = true }

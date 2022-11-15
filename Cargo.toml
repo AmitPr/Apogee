@@ -6,3 +6,9 @@ members = [
     "crates/service-macros",
     "crates/bindings",
 ]
+
+[workspace.dependencies]
+wit-bindgen-guest-rust = {git = "https://github.com/bytecodealliance/wit-bindgen"}
+wasmtime = { git = "https://github.com/bytecodealliance/wasmtime" }
+wit-bindgen-host-wasmtime-rust = { git = "https://github.com/bytecodealliance/wit-bindgen"}
+wasmtime-wasi = { git = "https://github.com/bytecodealliance/wasmtime" }

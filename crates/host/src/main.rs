@@ -204,34 +204,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //             .unwrap()
 //     );
 // }
-
-// #[tokio::main]
-// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//     let test: Arc<Mutex<String>> = Arc::new(Mutex::from("Foo".to_string()));
-
-//     let addr = SocketAddr::from(([127, 0, 0, 1], 4321));
-
-//     let make_svc = make_service_fn(|_conn| {
-//         let test_for_closure = test.clone();
-//         let svc_fn = service_fn(move |req: Request<Body>| {
-//             let test_for_closure = test_for_closure.clone();
-//             async move {
-//                 if req.version() == Version::HTTP_11 {
-//                     let foo = test_for_closure.lock().unwrap();
-//                     Ok(Response::new(Body::from(foo.clone())))
-//                 } else {
-//                     Err("not HTTP/1.1, abort connection")
-//                 }
-//             }
-//         });
-//         async move { Ok::<_, Infallible>(svc_fn) }
-//     });
-
-//     let server = Server::bind(&addr).serve(make_svc);
-
-//     if let Err(e) = server.await {
-//         eprintln!("server error: {}", e);
-//     }
-
-//     Ok(())
-// }
