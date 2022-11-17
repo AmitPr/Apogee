@@ -8,3 +8,7 @@ edition = "2021"
 [dependencies]
 service-macros = { path = "../service-macros" }
 bindings = { path = "../bindings" }
+
+
+[features]
+import = ["bindings/import"]

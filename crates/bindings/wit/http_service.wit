@@ -1,42 +1,53 @@
-// The HTTP method.
-enum method {
-    options,
-    get,
-    post,
-    put,
-    delete,
-    head,
-    trace,
-    connect,
-    patch,
+interface http-component{
+    // The HTTP method.
+    enum method {
+        options,
+        get,
+        post,
+        put,
+        delete,
+        head,
+        trace,
+        connect,
+        patch,
+    }
+
+    type uri = string
+
+    // HTTP Version
+    enum version {
+        http-v09,
+        http-v10,
+        http-v11,
+        http-v2,
+        http-v3,
+    }
+
+    record header {
+        key: list<u8>,
+        value: list<u8>,
+    }
+    // TODO: headers can have keys and values of arbitrary bytes.
+    type headers = list<header>
+
+    record request {
+        method: method,
+        uri: uri,
+        version: version,
+        headers: headers,
+    }
+
+    record response {
+        status: u16,
+        version: version,
+        headers: headers,
+    }
+
+    // Handler
+    handle-http-request: func(req: request) -> result<response, string>
 }
 
-type uri = string
-
-// HTTP Version
-enum version {
-    http-v09,
-    http-v10,
-    http-v11,
-    http-v2,
-    http-v3,
+world http-component {
+    import http-import: http-component
+    default export http-component
 }
-
-// TODO: headers can have keys and values of arbitrary bytes.
-type headers = list<tuple<string, string>>
-
-record request {
-    method: method,
-    uri: uri,
-    version: version,
-    headers: headers,
-}
-
-record response {
-    status: u16,
-    version: version,
-    headers: headers,
-}
-
-// Handler
-handle-http-request: func(req: request) -> result<response, string>

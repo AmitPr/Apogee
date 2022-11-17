@@ -7,7 +7,8 @@ edition = "2021"
 crate-type = [ "cdylib" ]
 
 [dependencies]
-sdk = { path = "../sdk" }
+sdk = { path = "../sdk", features = [] }
+#tokio = { version = "1", features = ["full"] }
 
 #[package.metadata.wit-component]
 #command = "wit-component ../target/wasm32-unknown-unknown/release/guest.wasm -o ../wasm/guest_component.wasm"

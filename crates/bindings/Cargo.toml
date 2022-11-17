@@ -7,4 +7,10 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.66"
-wit-bindgen-guest-rust = { workspace = true }
+wit-bindgen-guest-rust = { workspace = true, default-features = false, features = ["macros", "realloc"] }
+wit-bindgen-host-wasmtime-rust = { workspace = true, optional = true }
+wasmtime = { workspace = true, optional = true }
+hyper = { workspace = true, optional = true, features = ["full"] }
+
+[features]
+import = ["dep:wit-bindgen-host-wasmtime-rust", "dep:wasmtime", "dep:hyper"]
