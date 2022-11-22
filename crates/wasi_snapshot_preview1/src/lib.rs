@@ -103,12 +103,22 @@ pub extern "C" fn fd_write(
 }
 
 #[no_mangle]
-pub extern "C" fn fd_read(
+pub unsafe extern "C" fn fd_read(
     fd: Fd,
-    iovs_ptr: *const Ciovec,
-    iovs_len: usize,
+    mut iovs_ptr: *const Ciovec,
+    mut iovs_len: usize,
     nread: *mut Size,
 ) -> Errno {
+    // Advance to the first non-empty buffer.
+    while iovs_len != 0 && (*iovs_ptr).buf_len == 0 {
+        iovs_ptr = iovs_ptr.add(1);
+        iovs_len -= 1;
+    }
+    if iovs_len == 0 {
+        *nread = 0;
+        return ERRNO_SUCCESS;
+    }
+
     unreachable()
 }
 
