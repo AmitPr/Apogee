@@ -1,7 +1,7 @@
 wit_bindgen_guest_rust::generate!({path:"./wit/http_service.wit", macro_export});
 #[cfg(feature="import")]
 pub(crate) mod imports {
-    wit_bindgen_host_wasmtime_rust::generate!({
+    wasmtime::component::bindgen!({
         path: "./wit/http_service.wit",
     });
 

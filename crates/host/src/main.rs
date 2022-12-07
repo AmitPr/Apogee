@@ -1,4 +1,3 @@
-mod wasi;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server};
 use wasmtime_wasi_host::WasiCtx;
