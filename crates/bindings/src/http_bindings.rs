@@ -77,9 +77,49 @@ pub(crate) mod imports {
     //     }
     // }
 
+    impl Response {
+        pub fn into_hyper_response<T>(self) -> hyper::Response<T>
+        where
+            T: Default + From<Vec<u8>>,
+        {
+            let mut res = hyper::Response::builder()
+                .status(self.status)
+                .version(self.version.into());
+            for header in self.headers {
+                res = res.header(header.key, header.value);
+            }
+            res.body(T::from(self.body)).unwrap()
+        }
+
+        pub fn try_into_hyper_response<T>(self) -> Result<hyper::Response<T>, T::Error>
+        where
+            T: Default + TryFrom<Vec<u8>>,
+        {
+            let mut res = hyper::Response::builder()
+                .status(self.status)
+                .version(self.version.into());
+            for header in self.headers {
+                res = res.header(header.key, header.value);
+            }
+            Ok(res.body(T::try_from(self.body)?).unwrap())
+        }
+
+
+        pub fn response_builder(self) -> hyper::http::response::Builder
+        {
+            let mut res = hyper::Response::builder()
+                .status(self.status)
+                .version(self.version.into());
+            for header in self.headers {
+                res = res.header(header.key, header.value);
+            }
+            res
+        }
+    }
+
     impl<T> TryInto<hyper::Response<T>> for Response
     where
-        T: Default,
+        T: Default + From<Vec<u8>>,
     {
         type Error = String;
         fn try_into(self) -> Result<hyper::Response<T>, Self::Error> {
@@ -89,7 +129,7 @@ pub(crate) mod imports {
             for header in self.headers {
                 res = res.header(header.key, header.value);
             }
-            Ok(res.body(T::default()).unwrap())
+            Ok(res.body(T::from(self.body)).unwrap())
         }
     }
 }

@@ -35,12 +35,14 @@ interface http-component{
         uri: uri,
         version: version,
         headers: headers,
+        body: list<u8>,
     }
 
     record response {
         status: u16,
         version: version,
         headers: headers,
+        body: list<u8>,
     }
 
     // Handler
