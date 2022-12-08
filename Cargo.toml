@@ -5,12 +5,12 @@ members = [
     "crates/host",
     "crates/service-macros",
     "crates/bindings",
+    "crates/wasi",
 ]
 
 [workspace.dependencies]
-wit-bindgen-guest-rust = { git = "https://github.com/bytecodealliance/wit-bindgen", version = '0.3.0', default-features = false }
+wit-bindgen-guest-rust = { git = "https://github.com/bytecodealliance/wit-bindgen", default-features = false }
 wasmtime = { git = "https://github.com/bytecodealliance/wasmtime" }
-wit-bindgen-host-wasmtime-rust = { git = "https://github.com/bytecodealliance/wit-bindgen"}
-wasmtime-wasi = { git = "https://github.com/bytecodealliance/wasmtime" }
+wasmtime-component-macro = { git = "https://github.com/bytecodealliance/wasmtime" }
 wasi-common = { git = "https://github.com/bytecodealliance/wasmtime" }
 hyper = { version = "0.14.20" }

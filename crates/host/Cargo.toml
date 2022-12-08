@@ -9,9 +9,7 @@ edition = "2021"
 anyhow = "1.0.66"
 hyper = { version = "0.14.20", features = ["full"] }
 tokio = { version = "1", features = ["full"] }
-wasmtime = { workspace = true }
-wasmtime-wasi = { workspace = true, features = ["tokio"] }
-wit-bindgen-host-wasmtime-rust = { workspace = true }
+wasmtime = { workspace = true, features = ["component-model"]}
 sdk = { path = "../sdk", features=["import"] }
 
-wasmtime-wasi-host = { path = "../../../preview2-prototyping/host", package="host" }
+wasmtime-wasi-host = { path = "../wasi" }

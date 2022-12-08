@@ -1,0 +1,11 @@
+[package]
+name = "wasmtime-wasi-host"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1"
+thiserror = "1"
+wasmtime = { workspace = true, features=["component-model"] }
+wasmtime-component-macro = { workspace = true }
+tracing = { version = "0.1.26" }

@@ -1,4 +1,3 @@
-mod wasi;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server};
 use wasmtime_wasi_host::WasiCtx;
@@ -59,6 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             // Create a new `Store` and `Linker` for the WASI module
             let mut store = Store::new(&state_for_closure.engine, RequestCtx::default());
+            store.data_mut().wasi.set_context("guest".to_string());
             let mut linker = Linker::new(&state_for_closure.engine);
 
             // Add the WASI module to the linker
