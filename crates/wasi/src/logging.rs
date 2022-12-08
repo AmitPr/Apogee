@@ -1,15 +1,19 @@
-#![allow(unused_variables)]
-
 use crate::{wasi_logging, WasiCtx};
 
 impl wasi_logging::WasiLogging for WasiCtx {
     fn log(
         &mut self,
-        level: wasi_logging::Level,
-        context: String,
+        _level: wasi_logging::Level,
+        _context: String,
         message: String,
     ) -> anyhow::Result<()> {
-        println!("{level:?} {context}: {message}");
+        print!("[{}] {message}", self.logging_context);
         Ok(())
+    }
+}
+
+impl WasiCtx {
+    pub fn set_context(&mut self, context: String) {
+        self.logging_context = context;
     }
 }

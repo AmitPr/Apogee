@@ -11,10 +11,6 @@ wasmtime::component::bindgen!({
     path: "./wasi.wit",
     tracing: true,
 });
-// wit_bindgen_host_wasmtime_rust::generate!({
-//     path: "../wit/wasi.wit",
-//     tracing: true,
-// });
 
 pub fn add_to_linker<T>(
     l: &mut wasmtime::component::Linker<T>,
@@ -34,6 +30,7 @@ pub struct WasiCtx {
     table: Table,
     default_monotonic: wasi_clocks::MonotonicClock,
     default_wall: wasi_clocks::WallClock,
+    logging_context: String,
 }
 
 impl Default for WasiCtx {
@@ -47,6 +44,7 @@ impl Default for WasiCtx {
             table,
             default_monotonic,
             default_wall,
+            logging_context: "I/O".to_string(),
         }
     }
 }
