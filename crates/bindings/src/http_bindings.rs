@@ -5,6 +5,8 @@ pub(crate) mod imports {
         path: "./wit/http_service.wit",
     });
 
+    pub use http_import::add_to_linker;
+
     impl TryFrom<hyper::Method> for Method {
         type Error = String;
         fn try_from(method: hyper::Method) -> Result<Self, Self::Error> {

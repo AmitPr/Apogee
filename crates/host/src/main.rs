@@ -1,9 +1,9 @@
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server};
-use wasmtime_wasi_host::WasiCtx;
 use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::sync::Arc;
+use wasmtime_wasi_host::WasiCtx;
 
 use wasmtime::component::{Component, Linker};
 use wasmtime::{Engine, Store};
@@ -11,11 +11,12 @@ use wasmtime::{Engine, Store};
 use sdk::http::imports::{HeaderParam, HttpComponent, Method};
 use sdk::http::imports::{HeaderResult, Request as WasmRequest, Response as WasmResponse, Version};
 
+mod filesystem;
+
 struct WasmState {
     component: Component,
     engine: Engine,
 }
-
 
 #[derive(Default)]
 pub struct RequestCtx {
@@ -62,7 +63,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let mut linker = Linker::new(&state_for_closure.engine);
 
             // Add the WASI module to the linker
-            wasmtime_wasi_host::add_to_linker(&mut linker, |cx: &mut RequestCtx| &mut cx.wasi).unwrap();
+            wasmtime_wasi_host::add_to_linker(&mut linker, |cx: &mut RequestCtx| &mut cx.wasi)
+                .unwrap();
+
+            // Add custom SDK filesystem module
+            filesystem::add_to_linker(&mut linker, |cx: &mut RequestCtx| cx).unwrap();
 
             // Instantiate the HTTP component
             let (component, _instance) =

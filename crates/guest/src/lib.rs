@@ -1,10 +1,12 @@
 use sdk::entrypoint;
+use sdk::filesystem;
 use sdk::http::{Request, Response};
-
 
 #[entrypoint(http)]
 pub fn handle_http_request(req: Request) -> Result<Response, String> {
-    println!("Got request!");
+    // Read the index.html file from the filesystem
+    // let index_html = filesystem::read_file("Cargo.toml")?;
+    let index_html = b"Hello World".to_vec();
     if req.headers.iter().any(|h| h.key == b"x-wit-throw-error") {
         Err("Error - x-wit-throw-error header found".to_string())
     } else {
@@ -15,7 +17,7 @@ pub fn handle_http_request(req: Request) -> Result<Response, String> {
                 key: b"x-wit-test".to_vec(),
                 value: b"true".to_vec(),
             }],
-            body: b"Hello, world!".to_vec(),
+            body: index_html,
         })
     }
 }
