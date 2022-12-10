@@ -1,45 +1,89 @@
+use anyhow::anyhow;
+use clap::Parser;
+use cli::Args;
+use config::Config;
+use ctx::RequestCtx;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server};
+use service::Service;
+use std::collections::HashMap;
 use std::convert::Infallible;
 use std::net::SocketAddr;
+use std::path::Path;
 use std::sync::Arc;
-use wasmtime_wasi_host::WasiCtx;
 
-use wasmtime::component::{Component, Linker};
+use wasmtime::component::Linker;
 use wasmtime::{Engine, Store};
 
 use sdk::http::imports::{HeaderParam, HttpComponent, Method};
 use sdk::http::imports::{HeaderResult, Request as WasmRequest, Response as WasmResponse, Version};
 
+mod cli;
+mod config;
+mod ctx;
 mod filesystem;
+mod service;
 
 struct WasmState {
-    component: Component,
+    config: Config,
+    services: HashMap<String, Box<Service>>,
     engine: Engine,
 }
 
-#[derive(Default)]
-pub struct RequestCtx {
-    wasi: WasiCtx,
-}
-
-fn init_wasmtime() -> WasmState {
-    let wasm_path = std::env::current_dir()
-        .unwrap()
-        .join("../../wasm/guest_component.wasm");
-
+fn init_wasmtime() -> anyhow::Result<Engine> {
     let mut config = wasmtime::Config::new();
     config.wasm_component_model(true);
 
-    let engine = Engine::new(&config).unwrap();
-    let component = Component::from_file(&engine, wasm_path).unwrap();
-    WasmState { component, engine }
+    let engine = Engine::new(&config)?;
+    Ok(engine)
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> anyhow::Result<()> {
+    let args = Args::parse();
+
+    // Load configuration file
+    let config_path = Path::new(&args.config).canonicalize()?;
+    let config = toml::from_str::<Config>(std::fs::read_to_string(&config_path)?.as_str())?;
+
     // Initialize the Wasmtime runtime
-    let state = Arc::new(init_wasmtime());
+    let engine = init_wasmtime()?;
+
+    // Load all defined services
+    let dir = config_path
+        .parent()
+        .ok_or_else(|| anyhow!("Cannot open base directory"))?;
+    std::env::set_current_dir(dir)?;
+
+    let mut services = HashMap::new();
+    for entry in std::fs::read_dir(".")? {
+        let entry = entry?;
+        let path = entry.path();
+        if !path.is_dir() {
+            continue;
+        }
+        if !path.join("service.toml").exists() {
+            continue;
+        }
+        let service = Service::load(path.clone(), &engine);
+
+        if let Ok(service) = service {
+            services.insert(service.name.clone(), Box::new(service));
+        } else {
+            eprintln!(
+                "Error loading service in {}: {}",
+                path.display(),
+                service.err().unwrap()
+            );
+        }
+    }
+
+    // Create a `WasmState` instance that will be shared across all threads
+    let state = Arc::new(WasmState {
+        config,
+        services,
+        engine,
+    });
 
     // Create a `make_service_fn` closure that returns a `Service` instance
     // for each incoming connection
@@ -53,29 +97,56 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             // Create a clone of the `state_for_closure` variable so we can
             // use it inside the closure
             let state_for_closure = state.clone();
+            async move {
+                // Route the request to the appropriate service
+                let service = state_for_closure
+                    .config
+                    .route(req.uri().to_string())
+                    .and_then(|service| state_for_closure.services.get(&service.name));
 
-            // Destructure the request parts and body
-            let (parts, body) = req.into_parts();
+                if service.is_none() {
+                    return Ok::<_, Infallible>(
+                        Response::builder()
+                            .status(404)
+                            .body(Body::from("Not Found"))
+                            .unwrap(),
+                    );
+                }
 
-            // Create a new `Store` and `Linker` for the WASI module
-            let mut store = Store::new(&state_for_closure.engine, RequestCtx::default());
-            store.data_mut().wasi.set_context("guest".to_string());
-            let mut linker = Linker::new(&state_for_closure.engine);
+                // Construct a `RequestCtx` instance for the WASM execution
+                let service = service.unwrap();
+                let ctx = service.construct_ctx();
 
-            // Add the WASI module to the linker
-            wasmtime_wasi_host::add_to_linker(&mut linker, |cx: &mut RequestCtx| &mut cx.wasi)
-                .unwrap();
+                if ctx.is_err() {
+                    return Ok::<_, Infallible>(
+                        Response::builder()
+                            .status(500)
+                            .body(Body::from("Internal Server Error"))
+                            .unwrap(),
+                    );
+                }
 
-            // Add custom SDK filesystem module
-            filesystem::add_to_linker(&mut linker, |cx: &mut RequestCtx| cx).unwrap();
+                // Destructure the request parts and body
+                let (parts, body) = req.into_parts();
 
-            // Instantiate the HTTP component
-            let (component, _instance) =
-                HttpComponent::instantiate(&mut store, &state_for_closure.component, &linker)
+                // Create a new `Store` and `Linker` for the WASI module
+                // TODO: Set preopened directories from a config file
+                let mut store = Store::new(&state_for_closure.engine, ctx.unwrap());
+
+                let mut linker = Linker::new(&state_for_closure.engine);
+
+                // Add the WASI module to the linker
+                wasmtime_wasi_host::add_to_linker(&mut linker, |cx: &mut RequestCtx| &mut cx.wasi)
                     .unwrap();
 
-            // Return a `Future` that handles the request and produces the response
-            async move {
+                // Add custom SDK filesystem module
+                filesystem::add_to_linker(&mut linker, |cx: &mut RequestCtx| cx).unwrap();
+
+                // Instantiate the HTTP component
+                let (component, _instance) =
+                    HttpComponent::instantiate(&mut store, &service.component, &linker).unwrap();
+
+                // Return a `Future` that handles the request and produces the response
                 // Convert the `Method` and `Version` from their raw
                 // representation to their corresponding structs
                 let method = Method::try_from(parts.method.clone()).unwrap();
@@ -128,11 +199,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                 // Convert the WasmResponse to a Response and handle any errors that occur
                 let body = res.body.clone();
-                let res: Response<String> = res
-                    .response_builder()
-                    .body(String::from_utf8_lossy(&body).to_string())
-                    .unwrap();
-                Ok::<_, Infallible>(res)
+                Ok::<_, Infallible>(
+                    res.response_builder()
+                        .body(Body::from(String::from_utf8_lossy(&body).to_string()))
+                        .unwrap(),
+                )
             }
         });
 

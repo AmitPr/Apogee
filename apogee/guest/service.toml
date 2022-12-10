@@ -1,0 +1,6 @@
+name = "guest"
+wasm = "guest.component.wasm"
+
+[[filesystem]]
+path = "./data"
+target = "/"

@@ -13,3 +13,8 @@ wasmtime = { workspace = true, features = ["component-model"]}
 sdk = { path = "../sdk", features=["import"] }
 
 wasmtime-wasi-host = { path = "../wasi" }
+patricia_tree = "0.4.0"
+path-clean = "0.1.0"
+clap = { version = "4.0.29", features = ["derive"] }
+toml = "0.5.9"
+serde = { version = "1.0.149", features = ["derive"] }
