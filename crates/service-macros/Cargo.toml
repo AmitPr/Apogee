@@ -1,5 +1,5 @@
 [package]
-name = "service-macros"
+name = "apogee-macros"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,4 +11,4 @@ proc-macro = true
 [dependencies]
 quote = "1.0.21"
 syn = { version="1.0.103", features = ["full"] }
-bindings = { path="../bindings" }
+apogee-bindings = { path="../bindings" }

@@ -1,6 +1,6 @@
-use sdk::entrypoint;
-use sdk::filesystem;
-use sdk::http::{Request, Response};
+use apogee_sdk::entrypoint;
+use apogee_sdk::filesystem;
+use apogee_sdk::http::{Request, Response};
 
 #[entrypoint(http)]
 pub fn handle_http_request(req: Request) -> Result<Response, String> {
@@ -16,7 +16,7 @@ pub fn handle_http_request(req: Request) -> Result<Response, String> {
         Ok(Response {
             status: 200,
             version: req.version,
-            headers: vec![sdk::http::Header {
+            headers: vec![apogee_sdk::http::Header {
                 key: b"x-wit-test".to_vec(),
                 value: b"true".to_vec(),
             }],

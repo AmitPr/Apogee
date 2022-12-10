@@ -38,6 +38,50 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "216261ddc8289130e551ddcd5ce8a064710c0d064a4d2895c67151c92b5443f6"
 
 [[package]]
+name = "apogee-bindings"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "hyper",
+ "wasmtime",
+ "wit-bindgen-guest-rust",
+]
+
+[[package]]
+name = "apogee-host"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "apogee-sdk",
+ "clap",
+ "hyper",
+ "path-clean",
+ "patricia_tree",
+ "serde",
+ "tokio",
+ "toml",
+ "wasmtime",
+ "wasmtime-wasi-host",
+]
+
+[[package]]
+name = "apogee-macros"
+version = "0.1.0"
+dependencies = [
+ "apogee-bindings",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "apogee-sdk"
+version = "0.1.0"
+dependencies = [
+ "apogee-bindings",
+ "apogee-macros",
+]
+
+[[package]]
 name = "arrayvec"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -84,16 +128,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad"
 dependencies = [
  "serde",
-]
-
-[[package]]
-name = "bindings"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "hyper",
- "wasmtime",
- "wit-bindgen-guest-rust",
 ]
 
 [[package]]
@@ -546,7 +580,7 @@ dependencies = [
 name = "guest"
 version = "0.1.0"
 dependencies = [
- "sdk",
+ "apogee-sdk",
 ]
 
 [[package]]
@@ -602,23 +636,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ee512640fe35acbfb4bb779db6f0d80704c2cacfa2e39b601ef3e3f47d1ae4c7"
 dependencies = [
  "libc",
-]
-
-[[package]]
-name = "host"
-version = "0.0.1"
-dependencies = [
- "anyhow",
- "clap",
- "hyper",
- "path-clean",
- "patricia_tree",
- "sdk",
- "serde",
- "tokio",
- "toml",
- "wasmtime",
- "wasmtime-wasi-host",
 ]
 
 [[package]]
@@ -1162,14 +1179,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
-name = "sdk"
-version = "0.1.0"
-dependencies = [
- "bindings",
- "service-macros",
-]
-
-[[package]]
 name = "serde"
 version = "1.0.149"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1185,15 +1194,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b4eae9b04cbffdfd550eb462ed33bc6a1b68c935127d008b27444d08380f94e4"
 dependencies = [
  "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "service-macros"
-version = "0.1.0"
-dependencies = [
- "bindings",
  "quote",
  "syn",
 ]
@@ -1752,6 +1752,7 @@ name = "wasmtime-wasi-host"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "rand",
  "thiserror",
  "tracing",
  "wasmtime",

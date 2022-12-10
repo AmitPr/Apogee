@@ -1,5 +1,5 @@
 [package]
-name = "host"
+name = "apogee-host"
 version = "0.0.1"
 edition = "2021"
 
@@ -10,7 +10,7 @@ anyhow = "1.0.66"
 hyper = { version = "0.14.20", features = ["full"] }
 tokio = { version = "1", features = ["full"] }
 wasmtime = { workspace = true, features = ["component-model"]}
-sdk = { path = "../sdk", features=["import"] }
+apogee-sdk = { path = "../sdk", features=["import"] }
 
 wasmtime-wasi-host = { path = "../wasi" }
 patricia_tree = "0.4.0"

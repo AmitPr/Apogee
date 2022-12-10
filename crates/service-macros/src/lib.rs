@@ -25,18 +25,18 @@ pub(crate) fn generate_http_entrypoint(func: ItemFn) -> TokenStream {
     quote!(
         mod http_service_module {
             mod http_component {
-                pub use ::sdk::http::{call_handle_http_request, post_return_handle_http_request};
+                pub use ::apogee_sdk::http::{call_handle_http_request, post_return_handle_http_request};
             }
             struct HttpHandler;
-            impl ::sdk::http::HttpComponent for HttpHandler {
-                fn handle_http_request(req: ::sdk::http::Request) -> Result<::sdk::http::Response, String> {
+            impl ::apogee_sdk::http::HttpComponent for HttpHandler {
+                fn handle_http_request(req: ::apogee_sdk::http::Request) -> Result<::apogee_sdk::http::Response, String> {
                     super::#name(req)
                 }
             }
             #[cfg(target_arch = "wasm32")]
-            use ::sdk::http::__link_section;
+            use ::apogee_sdk::http::__link_section;
             #[cfg(target_arch = "wasm32")]
-            ::sdk::export_http_component!(HttpHandler);
+            ::apogee_sdk::export_http_component!(HttpHandler);
         }
         #func
     )

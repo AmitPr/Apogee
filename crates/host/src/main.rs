@@ -15,8 +15,8 @@ use std::sync::Arc;
 use wasmtime::component::Linker;
 use wasmtime::{Engine, Store};
 
-use sdk::http::imports::{HeaderParam, HttpComponent, Method};
-use sdk::http::imports::{HeaderResult, Request as WasmRequest, Response as WasmResponse, Version};
+use apogee_sdk::http::imports::{HeaderParam, HttpComponent, Method};
+use apogee_sdk::http::imports::{HeaderResult, Request as WasmRequest, Response as WasmResponse, Version};
 
 mod cli;
 mod config;
@@ -153,7 +153,7 @@ async fn main() -> anyhow::Result<()> {
                 let version = Version::try_from(parts.version).unwrap();
 
                 // Get the request URI as a string
-                let uri: &str = parts.uri.path();
+                let uri = parts.uri.to_string();
 
                 // Convert the request headers to a vector of `HeaderParam`
                 let headers: Vec<HeaderParam> = parts
@@ -172,7 +172,7 @@ async fn main() -> anyhow::Result<()> {
                 let req = WasmRequest {
                     version,
                     method,
-                    uri,
+                    uri: uri.as_str(),
                     headers: headers.as_slice(),
                     body: body.as_slice(),
                 };

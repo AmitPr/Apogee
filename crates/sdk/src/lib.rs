@@ -1,2 +1,2 @@
-pub use bindings::*;
-pub use service_macros::entrypoint;
+pub use apogee_bindings::*;
+pub use apogee_macros::entrypoint;

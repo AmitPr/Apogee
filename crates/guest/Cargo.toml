@@ -7,8 +7,7 @@ edition = "2021"
 crate-type = [ "cdylib" ]
 
 [dependencies]
-sdk = { path = "../sdk", features = [] }
-#tokio = { version = "1", features = ["full"] }
+apogee-sdk = { path = "../sdk", features = [] }
 
 #[package.metadata.wit-component]
-#command = "wit-component ../target/wasm32-unknown-unknown/release/guest.wasm -o ../wasm/guest_component.wasm"
+#command = "wasm-tools component new ../../target/wasm32-wasi/release/guest.wasm --adapt ../../adapters/wasi_snapshot_preview1.wasm -o ../../apogee/guest/guest.component.wasm --wit ../bindings/wit/filesystem.wit"

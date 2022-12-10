@@ -1,9 +1,9 @@
 use std::{fs::File, io::Read, path::PathBuf};
 
 use path_clean::PathClean;
-use sdk::filesystem;
+use apogee_sdk::filesystem;
 
-pub use sdk::filesystem::imports::add_to_linker;
+pub use apogee_sdk::filesystem::imports::add_to_linker;
 
 use crate::RequestCtx;
 

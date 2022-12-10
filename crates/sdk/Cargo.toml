@@ -1,14 +1,14 @@
 [package]
-name = "sdk"
+name = "apogee-sdk"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-service-macros = { path = "../service-macros" }
-bindings = { path = "../bindings" }
+apogee-macros = { path = "../service-macros" }
+apogee-bindings = { path = "../bindings" }
 
 
 [features]
-import = ["bindings/import"]
+import = ["apogee-bindings/import"]
